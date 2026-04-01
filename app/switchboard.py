@@ -32,7 +32,7 @@ class Switchboard:
 
         def create_user_by_phone(user_id: int, name: str, phone: str) -> User:
 
-            if phone[0] == LOCAL_PHONE_PREFIX:
+            if LOCAL_PHONE_PREFIX in phone:
                 return LocalUser(user_id, name, phone)
             else:
                 return ForeignUser(user_id, name, phone)
@@ -56,4 +56,8 @@ class Switchboard:
         return len(self._active_calls)
 
     def get_cross_border_calls_count(self) -> int:
-        pass  # Удалите `pass` и пишите ваш код
+        count = 0
+        for user in self._active_calls:
+            if user.is_cross_border:
+                count += 1
+        return count
