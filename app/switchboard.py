@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app.users import User
+from app.users import User, LocalUser, ForeignUser
 
 
 LOCAL_PHONE_PREFIX = "+7"
@@ -29,10 +29,31 @@ class Switchboard:
 
         Например: "1001,Иван Петров,+71234567890,1085,Адам Яковлев,+71255556666"
         '''
-        pass  # Удалите `pass` и пишите ваш код
+
+        def create_user_by_phone(user_id: int, name: str, phone: str) -> User:
+
+            if phone[0] == LOCAL_PHONE_PREFIX:
+                return LocalUser(user_id, name, phone)
+            else:
+                return ForeignUser(user_id, name, phone)
+
+        parts = raw_call.split(',')
+
+        if len(parts) != 6:
+            raise ValueError(f"Ожидается 6 полей, получено {len(parts)}")
+
+        caller_id, caller_name, caller_phone, receiver_id, receiver_name, receiver_phone = parts
+
+        caller = create_user_by_phone(int(caller_id), caller_name, caller_phone)
+        receiver = create_user_by_phone(int(receiver_id), receiver_name, receiver_phone)
+
+        new_active_call = ActiveCall(caller, receiver)
+
+        self._active_calls.append(new_active_call) # кладем в массив для подсчёта в следующей функции
+        return new_active_call
 
     def get_active_calls_count(self) -> int:
-        pass  # Удалите `pass` и пишите ваш код
+        return len(self._active_calls)
 
     def get_cross_border_calls_count(self) -> int:
         pass  # Удалите `pass` и пишите ваш код
