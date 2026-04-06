@@ -22,6 +22,7 @@ class ActiveCall:
 class Switchboard:
     def __init__(self) -> None:
         self._active_calls: list[ActiveCall] = []
+        self._cross_border_calls: list[ActiveCall] = []
 
     # возвращает кортеж с проверенными данными
     @staticmethod
@@ -84,14 +85,12 @@ class Switchboard:
         new_active_call = ActiveCall(caller, receiver)
 
         self._active_calls.append(new_active_call) # кладем в массив для подсчёта в следующей функции
+        if new_active_call.is_cross_border: # оптимизируем функцию get_cross_border, кладем звонок в массив на этапе создания звонка
+            self._cross_border_calls.append(new_active_call)
         return new_active_call
 
     def get_active_calls_count(self) -> int:
         return len(self._active_calls)
 
     def get_cross_border_calls_count(self) -> int:
-        count = 0
-        for user in self._active_calls:
-            if user.is_cross_border:
-                count += 1
-        return count
+        return len(self._cross_border_calls)
