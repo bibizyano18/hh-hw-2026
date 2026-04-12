@@ -24,6 +24,26 @@ class Switchboard:
         self._active_calls: list[ActiveCall] = []
         self._cross_border_calls: list[ActiveCall] = []
 
+    @staticmethod
+    def validate_phone(phone: str, field_name: str) -> None:
+        if not phone:
+            raise ValueError(f"{field_name} не может быть пустым")
+        if not phone.startswith('+'):
+            raise ValueError(f"{field_name} должен начинаться с '+', получено: {phone}")
+        # проверяем, что после + только цифры
+        if not phone[1:].isdigit():
+            raise ValueError(f"{field_name} должен содержать только цифры после '+', получено: {phone}")
+
+    @staticmethod
+    def validate_name(name: str, field_name: str) -> None:
+        if not name:
+            raise ValueError(f"{field_name} введено невалидно")
+        words = name.split(" ")
+        for word in words:
+            if word.isdigit():
+                raise ValueError(f"{field_name} не должно быть числом")
+
+
     # возвращает кортеж с проверенными данными
     @staticmethod
     def validate_and_parse_call_data(raw_call: str) -> Tuple[int, str, str, int, str, str]:
@@ -43,22 +63,11 @@ class Switchboard:
         if caller_id <= 0 or receiver_id <= 0:
             raise ValueError("ID пользователей должны быть положительными числами")
 
-        if not caller_name:
-            raise ValueError("caller_name не может быть пустым")
-        if not receiver_name:
-            raise ValueError("receiver_name не может быть пустым")
+        Switchboard.validate_name(caller_name, "caller_name")
+        Switchboard.validate_name(receiver_name, "receiver_name")
 
-        def validate_phone(phone: str, field_name: str) -> None:
-            if not phone:
-                raise ValueError(f"{field_name} не может быть пустым")
-            if not phone.startswith('+'):
-                raise ValueError(f"{field_name} должен начинаться с '+', получено: {phone}")
-            # проверяем, что после + только цифры
-            if not phone[1:].isdigit():
-                raise ValueError(f"{field_name} должен содержать только цифры после '+', получено: {phone}")
-
-        validate_phone(caller_phone, "caller_phone")
-        validate_phone(receiver_phone, "receiver_phone")
+        Switchboard.validate_phone(caller_phone, "caller_phone")
+        Switchboard.validate_phone(receiver_phone, "receiver_phone")
 
         return caller_id, caller_name, caller_phone, receiver_id, receiver_name, receiver_phone
 
